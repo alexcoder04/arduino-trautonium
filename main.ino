@@ -1,21 +1,19 @@
 #include "pitches.h"
-#include "melodies.h"
 
 // ----------------------------------------------------------------------------
-// CONSTS
+// CONSTANTS
 // ----------------------------------------------------------------------------
 #define CONFIG_PIN_TUNE_DISABLE 2
-#define CONFIG_PIN_EXTENDED_ENABLE 3
 #define INPUT_PIN A0
 #define OUTPUT_PIN 9
 #define TONE_LENGTH 100
 
-// ----------------------------------------------------------------------------
-// CONFIGUREABLE CONSTS
-// ----------------------------------------------------------------------------
-const int tones[] = {NOTE_C4, NOTE_D4, NOTE_E4, NOTE_F4, NOTE_G4, NOTE_A4, NOTE_B4, NOTE_C5, NOTE_D5, NOTE_E5, NOTE_F5, NOTE_G5, NOTE_A5, NOTE_B5};
-
+const int tones[] = {NOTE_C4, NOTE_D4, NOTE_E4, NOTE_F4, NOTE_G4, NOTE_A4, NOTE_B4, NOTE_C5};
 int TONE_NUMBER = 6;
+
+// ----------------------------------------------------------------------------
+// CONFIGUREABLE CONSTS (these can be changed during setup)
+// ----------------------------------------------------------------------------
 int R_LOW = 575;
 int R_HIGH = 645;
 int R_SPAN = R_HIGH - R_LOW;
@@ -23,7 +21,7 @@ int TONE_WIDHT = R_SPAN / TONE_NUMBER;
 int TOLERANCE = 5;
 
 // ----------------------------------------------------------------------------
-// VARS
+// GLOBAL VARIABLES
 // ----------------------------------------------------------------------------
 int resistance;
 int frequency;
@@ -32,12 +30,14 @@ int tone_index;
 // ----------------------------------------------------------------------------
 // HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
-int average(int values[], int len){ // average int from list of ints
+// average int from list of ints
+int average(int values[], int len){
     long int sum = 0;
     for (int i = 0 ; i < len ; i++){ sum += values[i]; }
     return  ((int) sum) / len;
 }
 
+// read the resistance 30 times and return the average
 int readMeanResist() { // measure resistance
     int resistances[30];
     for (int i = 0; i < 30; i++){
@@ -47,7 +47,8 @@ int readMeanResist() { // measure resistance
     return average(resistances, 30);
 }
 
-void configure(){ // auto-configure low and high values
+// set low and high resistance; you need to press high and low positions if it beeps three times
+void configure(){
     tone(OUTPUT_PIN, NOTE_C5, 500); delay(1000);
     tone(OUTPUT_PIN, NOTE_C5, 500); delay(1000);
     tone(OUTPUT_PIN, NOTE_C5, 500); delay(1000);
@@ -66,24 +67,6 @@ void configure(){ // auto-configure low and high values
     tone(OUTPUT_PIN, NOTE_C5, 500); delay(500);
 }
 
-void playSong(int melody[], int tempo){ // play list of notes
-    int notes = sizeof(melody) / sizeof(melody[0]) / 2;
-    int wholenote = (60000 * 4) / tempo;
-    int divider = 0, noteDuration = 0;
-    for (int thisNote = 0; thisNote < notes * 2; thisNote = thisNote + 2) {
-        divider = melody[thisNote + 1];
-        if (divider > 0) {
-            noteDuration = (wholenote) / divider;
-        } else if (divider < 0) {
-            noteDuration = (wholenote) / abs(divider);
-            noteDuration *= 1.5;
-        }
-        tone(OUTPUT_PIN, melody[thisNote], noteDuration * 0.9);
-        delay(noteDuration);
-        noTone(OUTPUT_PIN);
-    }
-}
-
 // ----------------------------------------------------------------------------
 // SETUP
 // ----------------------------------------------------------------------------
@@ -91,11 +74,6 @@ void setup() {
     pinMode(INPUT_PIN, INPUT);
     pinMode(OUTPUT_PIN, OUTPUT);
     Serial.begin(9600);
-    if (digitalRead(CONFIG_PIN_EXTENDED_ENABLE) == 1){
-        TONE_NUMBER = 13;
-        TOLERANCE = 3;
-        TONE_WIDHT = R_SPAN / TONE_NUMBER;
-    }
     if (digitalRead(CONFIG_PIN_TUNE_DISABLE) == 0){
         configure();
     }
@@ -106,15 +84,16 @@ void setup() {
 // ----------------------------------------------------------------------------
 void loop() {
     resistance = analogRead(INPUT_PIN); // read resistance
-    // if in range of trautonium, so not 0
-    if ((resistance > R_LOW ) && (resistance<R_HIGH)) {
-        // last value if difference too low
+    // if in range of trautonium, so not 0 and not too high
+    if ((resistance > R_LOW ) && (resistance < R_HIGH)) {
+        // use same tone if difference too low
         if ( abs((tone_index * TONE_WIDHT) - (resistance - R_LOW)) > TOLERANCE ) {
             tone_index = (resistance-R_LOW)/TONE_WIDHT;
         }
         // play
         tone(OUTPUT_PIN, tones[tone_index], TONE_LENGTH); 
-        Serial.println(tone_index); // what are we playing?
+        Serial.println(tone_index); // print what we are playing
     }
     delay(TONE_LENGTH / 2);
 }
+
