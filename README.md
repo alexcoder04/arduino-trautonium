@@ -1,7 +1,9 @@
 
 # arduino-trautonium
 
-![Trautonium Image](./trautonium.png)
+![Trautonium Image](./images/trautonium.png)
+
+![Circuit Diagram](./images/cricuit-diagram.jpeg)
 
 ---
 *ENGLISH*
@@ -13,7 +15,8 @@ a special circuit. You can find more information on
 [Wikipedia](https://en.wikipedia.org/wiki/Trautonium) and
 [doepfer.de](https://doepfer.de/traut/traut_e.htm).
 
-This repository contains the code for a trautonium we built using an Arduino.
+This is the result of a school group work in which we built a trautonium
+using an Arduino.
 
 ---
 *DEUTSCH*
@@ -26,5 +29,5 @@ unterschiedliche Töne umgewandelt werden. Für mehr Informationen siehe
 [Wikipedia](https://de.wikipedia.org/wiki/Trautonium) und
 [doepfer.de](https://doepfer.de/traut/traut_d.htm).
 
-In diesem Repository befindet sich der Code für unser Trautonium, was wir
-mithilfe eines Arduinos gebaut haben.
+Das ist das Ergebnis einer Gruppenarbeit in der Schule, bei der wir
+ein Trautonium mithilfe eines Arduinos gebaut haben.
